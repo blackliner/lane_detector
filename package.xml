@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
-<package format="2">
+<package format="3">
   <name>lane_detector</name>
   <version>0.0.0</version>
   <description>Basic lane detector.</description>
 
-  <maintainer mail="florian.berchtold@gmail.com">Florian Berchtold</maintainer>
+  <maintainer email="florian.berchtold@gmail.com">Florian Berchtold</maintainer>
   <license>Apache License 2.0</license>
 
   <exec_depend>rclpy</exec_depend>
