@@ -8,43 +8,41 @@ from datetime import datetime
 import cv2
 import os
 import yaml
-from natsort import natsorted
+import numpy as np
 
 
 class LaneDetector(Node):
     def __init__(self, **kwargs):
         super().__init__("lane_detector")
 
+        self.br = CvBridge()
+
         image_topic_ = self.declare_parameter("image_topic", "/image/image_raw").value
 
         self.frame_id_ = self.declare_parameter("frame_id", "camera").value
 
-        self.image_publisher_ = self.create_publisher(Image, image_topic_, 5)
+        self.image_subscriber = self.create_subscription(Image, image_topic_, self.image_callback, 10)
 
-    def image_callback(self, image_path=None):
-        if self.type == "video":
-            rval, image = self.vc.read()
-        elif image_path:
-            image = cv2.imread(image_path)
-        else:
-            self.get_logger().error("Image path is none.")
-            raise ValueError()
+        # self.lane_publisher_ = self.create_publisher(Image, image_topic_, 5)
 
-        time_msg = self.get_time_msg()
-        img_msg = self.get_image_msg(image, time_msg)
+    def image_callback(self, msg):
+        # self.get_logger().info(f"Image received: {msg.width}x{msg.height}")
 
-        self.image_publisher_.publish(img_msg)
+        img = self.br.imgmsg_to_cv2(msg)
 
-    def get_image_msg(self, image, time):
+        height, width, channels = img.shape
+        # self.get_logger().info(f"OpenCV: {width}x{height}:{channels}")
 
-        img_msg = CvBridge().cv2_to_imgmsg(image, encoding="bgr8")
-        img_msg.header.stamp = time
-        img_msg.header.frame_id = self.frame_id_
-        return img_msg
+        cv2.imshow("Received", img)
+        cv2.waitKey(1)
 
 
 def main(args=None):
     rclpy.init(args=args)
+
+    cv2.namedWindow("Received", cv2.WINDOW_NORMAL)
+    cv2.resizeWindow("Received", 800, 400)
+    cv2.moveWindow("Received", 20, 20)
 
     lane_detector = LaneDetector()
 
