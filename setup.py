@@ -9,7 +9,7 @@ setup(
     data_files=[("share/" + package_name, ["package.xml"]),],
     py_modules=[],
     zip_safe=True,
-    install_requires=["setuptools", "opencv-python", "natsort"],
+    install_requires=["setuptools", "opencv-python"],
     author="Florian Berchtold",
     maintainer="Florian Berchtold",
     keywords=["ROS2"],
