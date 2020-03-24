@@ -41,6 +41,14 @@ class LaneDetector(Node):
             return
         img = self.br.imgmsg_to_cv2(self.image_raw)
 
+
+        scale_percent = 50 # percent of original size
+        width = int(img.shape[1] * scale_percent / 100)
+        height = int(img.shape[0] * scale_percent / 100)
+        dim = (width, height)
+        # resize image
+        img = cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
+
         height, width, channels = img.shape
         # self.get_logger().info(f"OpenCV: {width}x{height}:{channels}")
 
@@ -52,16 +60,17 @@ class LaneDetector(Node):
         s_high = cv2.getTrackbarPos('S_high','img')
         v_low = cv2.getTrackbarPos('V_low','img')
         v_high = cv2.getTrackbarPos('V_high','img')
+
+
         low_val = (0,10,121)
         high_val = (67,96,255)
-
 
         mask = cv2.inRange(hsv, low_val,high_val)
 
         # remove noise
         mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel=np.ones((16,16),dtype=np.uint8))
         # close mask
-        mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel=np.ones((32,32),dtype=np.uint8))
+        mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel=np.ones((16,16),dtype=np.uint8))
 
         # # improve mask by drawing the convexhull 
         # contours, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -81,8 +90,8 @@ class LaneDetector(Node):
         high_val = (255,255,255)
 
 
-        # low_val = (h_low,s_low,v_low)
-        # high_val = (h_high,s_high,v_high)
+        low_val = (h_low,s_low,v_low)
+        high_val = (h_high,s_high,v_high)
 
         # Threshold the HSV image 
         mask2 = cv2.inRange(road_hsv, low_val,high_val)
@@ -92,8 +101,8 @@ class LaneDetector(Node):
         # Convert the image to gray-scale
         gray = cv2.cvtColor(result, cv2.COLOR_BGR2GRAY)
         
-        low_val = (h_low)
-        high_val = (h_high)
+        low_val = (200)
+        high_val = (255)
         # Threshold the HSV image         
         gray = cv2.inRange(gray, low_val,high_val)
         
@@ -127,10 +136,13 @@ def main(args=None):
     cv2.resizeWindow("img", 600, 400)
     cv2.createTrackbar("H_low",  "img" , 0, 255, nothing)
     cv2.createTrackbar("H_high",  "img" , 0, 255, nothing)
+    cv2.setTrackbarPos("H_high", "img", 255)
     cv2.createTrackbar("S_low",  "img" , 0, 255, nothing)
     cv2.createTrackbar("S_high",  "img" , 0, 255, nothing)
+    cv2.setTrackbarPos("S_high", "img", 255)
     cv2.createTrackbar("V_low",  "img" , 0, 255, nothing)
     cv2.createTrackbar("V_high",  "img" , 0, 255, nothing)
+    cv2.setTrackbarPos("V_high", "img", 255)
 
     cv2.namedWindow("result", cv2.WINDOW_NORMAL)
     cv2.resizeWindow("result", 600, 400)
